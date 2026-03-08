@@ -1,0 +1,58 @@
+AI Chatbot with RAG on AWS – Problem Statement and Pipelines
+Problem Statement
+Organizations store large volumes of knowledge in documents such as PDFs, reports, manuals, and policies. These documents are difficult to search using traditional keyword-based systems. Users often spend significant time manually browsing documents to find relevant information.
+
+The objective is to build an AI-powered chatbot application that can understand user questions in natural language and retrieve accurate answers from organizational documents.
+
+The system will use a Retrieval-Augmented Generation (RAG) architecture where documents are converted into vector embeddings and stored in a vector database. When a user asks a question, the system retrieves the most relevant document sections and generates a contextual answer using a Large Language Model.
+
+The entire solution will be implemented using AWS services to ensure scalability, reliability, and secure AI integration.
+Flow 1: Training Pipeline (Document to RAG Knowledge Base)
+Purpose: Convert PDFs into structured knowledge that can be searched using semantic similarity.
+Training Pipeline Steps
+1. Document Upload
+2. Text Extraction
+3. Text Chunking
+4. Embedding Generation
+5. Vector Storage
+Architecture Flow
+PDF Upload → Amazon S3 → AWS Lambda Trigger → Amazon Textract → Text Chunking → Amazon Bedrock Embeddings → Amazon OpenSearch Vector Database
+Component-wise Purpose and Usage (Training Pipeline)
+Amazon S3
+Stores all uploaded PDF documents. Users upload documents to an S3 bucket which acts as the central document repository. Uploading a file triggers the processing pipeline.
+AWS Lambda
+Acts as the orchestration service for the pipeline. When a document is uploaded to S3, Lambda is triggered to process the document, call text extraction, perform chunking, generate embeddings, and store them in the vector database.
+Amazon Textract
+Extracts machine-readable text from PDFs and scanned documents. Lambda sends the file to Textract and receives structured text that will be used for building embeddings.
+Text Chunking
+Large documents are split into smaller chunks (typically 500–1000 tokens). Each chunk contains meaningful sections of text along with metadata such as page number, document name, and section heading.
+Amazon Bedrock Embedding Model
+Converts each text chunk into vector embeddings. These vectors represent the semantic meaning of the text and allow similarity-based search.
+Amazon OpenSearch Vector Database
+Stores the embeddings generated from document chunks. Each vector is stored along with metadata and the original text chunk to enable semantic retrieval.
+Flow 2: Inference Pipeline (User Question to AI Answer)
+Purpose: Allow users to ask natural language questions and receive contextual answers derived from the document knowledge base.
+Inference Pipeline Steps
+1. User asks a question
+2. Convert question into embedding
+3. Retrieve relevant document chunks
+4. Send context and question to LLM
+5. Generate final answer
+Architecture Flow
+User Question → Frontend Application → API Gateway → AWS Lambda → Bedrock Embedding Model → OpenSearch Vector Search → Retrieve Top Chunks → Amazon Bedrock LLM → Generate Contextual Answer → User Response
+Component-wise Purpose and Usage (Inference Pipeline)
+Frontend Application (AWS Amplify)
+Provides the chatbot interface where users type questions and view AI responses. The frontend sends requests to backend APIs.
+Amazon API Gateway
+Acts as the secure entry point for chatbot APIs. It receives requests from the frontend and routes them to AWS Lambda.
+AWS Lambda
+Handles backend processing. It converts the user question to embeddings, retrieves relevant vectors from OpenSearch, and sends context to the LLM for answer generation.
+Amazon Bedrock Embedding Model
+Converts the user's question into a vector embedding that can be compared with document embeddings stored in the vector database.
+Amazon OpenSearch
+Performs vector similarity search and returns the most relevant document chunks.
+Amazon Bedrock LLM
+Generates the final answer using the retrieved context and the user's question.
+Amazon DynamoDB
+Stores chat history, session information, and user interactions for analytics and personalization.
+Currently we don’t have the AWS credentials so create a file for that and later I will fill the required details.
